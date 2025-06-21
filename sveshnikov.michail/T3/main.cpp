@@ -1,4 +1,8 @@
+#include <map>
+#include <limits>
 #include <fstream>
+#include <functional>
+#include "commands.hpp"
 #include "loading-polygons.hpp"
 
 int main(int argc, char **argv)
@@ -17,4 +21,34 @@ int main(int argc, char **argv)
   }
   std::vector< Polygon > shapes;
   loadPolygons(in, shapes);
+
+  using istr = std::istream;
+  using ostr = std::ostream;
+  using polygon_set = std::vector< Polygon >;
+  std::map< std::string, std::function< void(istr &, ostr &, polygon_set &) > > cmds;
+  cmds["AREA"] = area;
+  cmds["MAX"] = max;
+  cmds["MIN"] = min;
+  cmds["COUNT"] = count;
+  cmds["MAXSEQ"] = maxseq;
+  cmds["RMECHO "] = rmecho;
+
+  std::string command;
+  while (!(std::cin >> command).eof())
+  {
+    try
+    {
+      cmds.at(command)(std::cin, std::cout, shapes);
+    }
+    catch (...)
+    {
+      if (std::cin.fail())
+      {
+        std::cin.clear(std::cin.rdstate() ^ std::ios::failbit);
+      }
+      std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
+      std::cout << "<INVALID COMMAND>" << '\n';
+    }
+  }
+  return 0;
 }
