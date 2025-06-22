@@ -22,10 +22,10 @@ int main(int argc, char **argv)
   std::vector< Polygon > shapes;
   loadPolygons(in, shapes);
 
-  using istr = std::istream;
-  using ostr = std::ostream;
-  using polygon_set = std::vector< Polygon >;
-  std::map< std::string, std::function< void(istr &, ostr &, polygon_set &) > > cmds;
+  using is_t = std::istream;
+  using os_t = std::ostream;
+  using polygon_set_t = std::vector< Polygon >;
+  std::map< std::string, std::function< void(is_t &, os_t &, polygon_set_t &) > > cmds;
   cmds["AREA"] = area;
   cmds["MAX"] = max;
   cmds["MIN"] = min;
