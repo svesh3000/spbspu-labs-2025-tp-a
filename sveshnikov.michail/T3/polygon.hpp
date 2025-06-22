@@ -15,8 +15,8 @@ namespace sveshnikov
     std::vector< Point > points;
   };
 
-  std::istream &operator>>(std::istream &in, Point &&pos);
-  std::istream &operator>>(std::istream &in, Polygon &&shape);
+  std::istream &operator>>(std::istream &in, Point &pos);
+  std::istream &operator>>(std::istream &in, Polygon &shape);
 
   void loadPolygons(std::istream &in, std::vector< Polygon > &shapes);
 }
