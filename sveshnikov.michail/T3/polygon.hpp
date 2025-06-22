@@ -19,6 +19,8 @@ namespace sveshnikov
   std::istream &operator>>(std::istream &in, Polygon &shape);
 
   void loadPolygons(std::istream &in, std::vector< Polygon > &shapes);
+
+  double getPolygonArea(const Polygon &poly);
 }
 
 #endif
