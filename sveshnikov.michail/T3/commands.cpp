@@ -37,7 +37,12 @@ void sveshnikov::area(is_t &in, os_t &out, const polygon_set_t &shapes)
   in >> parm;
   try
   {
-    int num_vertexes = std::stoi(parm);
+    size_t len_str = 0;
+    int num_vertexes = std::stoi(parm, &len_str);
+    if (len_str != parm.size())
+    {
+      throw std::invalid_argument("Error: the parameter is not a number!");
+    }
     area_num_vertexes(out, shapes, num_vertexes);
   }
   catch (const std::invalid_argument &e)
@@ -78,7 +83,12 @@ void sveshnikov::count(is_t &in, os_t &out, const polygon_set_t &shapes)
   in >> parm;
   try
   {
+    size_t len_str = 0;
     int num_vertexes = std::stoi(parm);
+    if (len_str != parm.size())
+    {
+      throw std::invalid_argument("Error: the parameter is not a number!");
+    }
     count_num_vertexes(out, shapes, num_vertexes);
   }
   catch (const std::invalid_argument &e)

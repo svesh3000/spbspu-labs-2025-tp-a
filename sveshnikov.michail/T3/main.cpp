@@ -3,7 +3,6 @@
 #include <fstream>
 #include <functional>
 #include "commands.hpp"
-#include "loading-polygons.hpp"
 
 int main(int argc, char **argv)
 {
