@@ -30,6 +30,16 @@ namespace
   }
 }
 
+int sveshnikov::get_x(const sveshnikov::Point &p)
+{
+  return p.x;
+}
+
+int sveshnikov::get_y(const sveshnikov::Point &p)
+{
+  return p.y;
+}
+
 std::istream &sveshnikov::operator>>(std::istream &in, Point &pos)
 {
   std::istream::sentry sentry(in);
@@ -48,6 +58,7 @@ std::istream &sveshnikov::operator>>(std::istream &in, Point &pos)
   {
     pos = std::move(p);
   }
+  return in;
 }
 
 std::istream &sveshnikov::operator>>(std::istream &in, Polygon &shape)
@@ -62,8 +73,8 @@ std::istream &sveshnikov::operator>>(std::istream &in, Polygon &shape)
 
   size_t num_points = 0;
   in >> num_points;
-  std::copy_n(in_iter(in), num_points, std::back_inserter(poly));
-  if (num_points < 3 || poly.points.size() != num_points || in.peek() != '\n')
+  std::copy_n(in_iter(in), num_points, std::back_inserter(poly.points));
+  if (num_points < 3 || poly.points.size() != num_points)
   {
     in.setstate(std::ios::failbit);
   }
@@ -78,15 +89,14 @@ std::istream &sveshnikov::operator>>(std::istream &in, Polygon &shape)
 void sveshnikov::loadPolygons(std::istream &in, std::vector< Polygon > &shapes)
 {
   using in_iter = std::istream_iterator< Polygon >;
-  using out_iter = std::ostream_iterator< Polygon >;
 
-  while (!std::cin.eof())
+  while (!in.eof())
   {
-    if (std::cin.fail())
+    std::copy(in_iter(in), in_iter(), std::back_inserter(shapes));
+    if (in.fail())
     {
-      std::cin.clear();
+      in.clear();
     }
-    std::copy(in_iter(std::cin), in_iter(), std::back_inserter(shapes));
   }
 }
 
@@ -94,24 +104,22 @@ double sveshnikov::getPolygonArea(const Polygon &poly)
 {
   const std::vector< Point > &pts = poly.points;
   std::vector< Point > next = pts;
-  std::rotate(next.begin(), std::prev(next.end()), next.end());
+  std::rotate(next.begin(), std::next(next.begin()), next.end());
 
-  auto make_shoelace = std::bind(std::multiplies(), get_x, get_y);
+  using namespace std::placeholders;
+  auto make_shoelace =
+      std::bind(std::multiplies< int >(), std::bind(get_x, _1), std::bind(get_y, _2));
 
-  std::vector< double > left_shoelace_set;
-  left_shoelace_set.reserve(pts.size());
-  auto l_back_ins = std::back_inserter(left_shoelace_set);
-  std::transform(pts.begin(), pts.end(), next.begin(), l_back_ins, make_shoelace);
-
-  std::vector< double > right_shoelace_set;
-  right_shoelace_set.reserve(pts.size());
-  auto r_back_ins = std::back_inserter(right_shoelace_set);
-  std::transform(next.begin(), next.end(), pts.begin(), r_back_ins, make_shoelace);
-
+  std::vector< double > left_shoelace_set(pts.size());
   auto l_begin_it = left_shoelace_set.begin();
-  auto l_end_it = left_shoelace_set.end();
+  std::transform(pts.begin(), pts.end(), next.begin(), l_begin_it, make_shoelace);
+
+  std::vector< double > right_shoelace_set(pts.size());
   auto r_begin_it = right_shoelace_set.begin();
-  std::transform(l_begin_it, l_end_it, r_begin_it, l_begin_it, std::minus());
+  std::transform(next.begin(), next.end(), pts.begin(), r_begin_it, make_shoelace);
+
+  auto l_end_it = left_shoelace_set.end();
+  std::transform(l_begin_it, l_end_it, r_begin_it, l_begin_it, std::minus< int >());
   double area = std::accumulate(l_begin_it, l_end_it, 0.0);
   return std::abs(area) / 2;
 }

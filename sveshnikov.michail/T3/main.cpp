@@ -30,7 +30,7 @@ int main(int argc, char **argv)
   cmds["MIN"] = min;
   cmds["COUNT"] = count;
   cmds["MAXSEQ"] = maxseq;
-  cmds["RMECHO "] = rmecho;
+  cmds["RMECHO"] = rmecho;
 
   std::string command;
   while (!(std::cin >> command).eof())
