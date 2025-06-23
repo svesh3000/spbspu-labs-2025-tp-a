@@ -30,9 +30,9 @@ namespace
   void min_area(os_t &out, const polygon_set_t &shapes);
   void min_vertexes(os_t &out, const polygon_set_t &shapes);
 
-  void count_even(os_t &out, const polygon_set_t &shapes);
-  void count_odd(os_t &out, const polygon_set_t &shapes);
-  void count_num_vertexes(os_t &out, const polygon_set_t &shapes, size_t num);
+  size_t count_even(const polygon_set_t &shapes);
+  size_t count_odd(const polygon_set_t &shapes);
+  size_t count_num_vertexes(const polygon_set_t &shapes, size_t num);
 
   bool isEven(const sveshnikov::Polygon &poly)
   {
@@ -129,6 +129,26 @@ namespace
     sveshnikov::StreamGuard streamguard(out);
     out << std::fixed << std::setprecision(1) << *it << '\n';
   }
+
+  size_t count_even(const polygon_set_t &shapes)
+  {
+    std::vector< size_t > areas = getVertexesSet(shapes);
+    return std::count_if(areas.begin(), areas.end(), isEven);
+  }
+
+  size_t count_odd(const polygon_set_t &shapes)
+  {
+    std::vector< size_t > areas = getVertexesSet(shapes);
+    return shapes.size() - std::count_if(areas.begin(), areas.end(), isEven);
+  }
+
+  size_t count_num_vertexes(const polygon_set_t &shapes, size_t num)
+  {
+    using namespace std::placeholders;
+    std::vector< size_t > areas = getVertexesSet(shapes);
+    auto num_vert = std::bind(std::equal_to< size_t >(), std::bind(getNumVertexes, _1), num);
+    return std::count_if(areas.begin(), areas.end(), num_vert);
+  }
 }
 
 void sveshnikov::area(is_t &in, os_t &out, const polygon_set_t &shapes)
@@ -192,12 +212,13 @@ void sveshnikov::min(is_t &in, os_t &out, const polygon_set_t &shapes)
 
 void sveshnikov::count(is_t &in, os_t &out, const polygon_set_t &shapes)
 {
-  std::map< std::string, std::function< void() > > params;
-  params["EVEN"] = std::bind(count_even, std::ref(out), std::cref(shapes));
-  params["ODD"] = std::bind(count_odd, std::ref(out), std::cref(shapes));
+  std::map< std::string, std::function< size_t() > > params;
+  params["EVEN"] = std::bind(count_even, std::cref(shapes));
+  params["ODD"] = std::bind(count_odd, std::cref(shapes));
 
   std::string parm;
   in >> parm;
+  size_t num_vertexes = 0;
   try
   {
     size_t len_str = 0;
@@ -206,12 +227,14 @@ void sveshnikov::count(is_t &in, os_t &out, const polygon_set_t &shapes)
     {
       throw std::invalid_argument("Error: the parameter is not a number!");
     }
-    count_num_vertexes(out, shapes, num_vertexes);
+    num_vertexes = count_num_vertexes(shapes, num_vertexes);
   }
   catch (const std::invalid_argument &e)
   {
-    params.at(parm)();
+    num_vertexes = params.at(parm)();
   }
+  sveshnikov::StreamGuard streamguard(out);
+  out << std::fixed << std::setprecision(1) << num_vertexes << '\n';
 }
 
 void sveshnikov::maxseq(is_t &in, os_t &out, const polygon_set_t &shapes)
