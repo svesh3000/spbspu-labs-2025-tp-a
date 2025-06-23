@@ -10,7 +10,7 @@ namespace sveshnikov
   void min(std::istream &in, std::ostream &out, const std::vector< Polygon > &shapes);
   void count(std::istream &in, std::ostream &out, const std::vector< Polygon > &shapes);
   void maxseq(std::istream &in, std::ostream &out, const std::vector< Polygon > &shapes);
-  void rmecho(std::istream &in, std::ostream &out, const std::vector< Polygon > &shapes);
+  void rmecho(std::istream &in, std::ostream &out, std::vector< Polygon > &shapes);
 }
 
 #endif

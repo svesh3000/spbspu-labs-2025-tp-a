@@ -15,8 +15,14 @@ namespace sveshnikov
     std::vector< Point > points;
   };
 
+  int get_x(const sveshnikov::Point &p);
+  int get_y(const sveshnikov::Point &p);
+
   std::istream &operator>>(std::istream &in, Point &pos);
   std::istream &operator>>(std::istream &in, Polygon &shape);
+
+  bool operator==(const sveshnikov::Point &pos1, const sveshnikov::Point &pos2);
+  bool operator==(const sveshnikov::Polygon &poly1, const sveshnikov::Polygon &poly2);
 
   void loadPolygons(std::istream &in, std::vector< Polygon > &shapes);
 

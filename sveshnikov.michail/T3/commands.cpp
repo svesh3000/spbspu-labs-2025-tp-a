@@ -240,5 +240,11 @@ void sveshnikov::count(is_t &in, os_t &out, const polygon_set_t &shapes)
 void sveshnikov::maxseq(is_t &in, os_t &out, const polygon_set_t &shapes)
 {}
 
-void sveshnikov::rmecho(is_t &in, os_t &out, const polygon_set_t &shapes)
-{}
+void sveshnikov::rmecho(is_t &in, os_t &out, polygon_set_t &shapes)
+{
+  size_t old_size = shapes.size();
+  auto last = std::unique(shapes.begin(), shapes.end());
+  shapes.erase(last, shapes.end());
+  sveshnikov::StreamGuard streamguard(out);
+  out << old_size - shapes.size() << '\n';
+}

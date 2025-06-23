@@ -28,16 +28,6 @@ namespace
     }
     return in;
   }
-
-  int get_x(const sveshnikov::Point &p)
-  {
-    return p.x;
-  }
-
-  int get_y(const sveshnikov::Point &p)
-  {
-    return p.y;
-  }
 }
 
 std::istream &sveshnikov::operator>>(std::istream &in, Point &pos)
@@ -103,10 +93,8 @@ void sveshnikov::loadPolygons(std::istream &in, std::vector< Polygon > &shapes)
 double sveshnikov::getPolygonArea(const Polygon &poly)
 {
   const std::vector< Point > &pts = poly.points;
-  std::vector< Point > next;
-  next.reserve(pts.size());
-  std::copy(std::next(pts.begin()), pts.end(), std::back_inserter(next));
-  next.push_back(pts[0]);
+  std::vector< Point > next = pts;
+  std::rotate(next.begin(), std::prev(next.end()), next.end());
 
   auto make_shoelace = std::bind(std::multiplies(), get_x, get_y);
 
@@ -126,4 +114,15 @@ double sveshnikov::getPolygonArea(const Polygon &poly)
   std::transform(l_begin_it, l_end_it, r_begin_it, l_begin_it, std::minus());
   double area = std::accumulate(l_begin_it, l_end_it, 0.0);
   return std::abs(area) / 2;
+}
+
+bool sveshnikov::operator==(const Point &pos1, const Point &pos2)
+{
+  return pos1.x == pos2.x && pos1.y == pos2.y;
+}
+
+bool sveshnikov::operator==(const Polygon &poly1, const Polygon &poly2)
+{
+  bool equal_size = poly1.points.size() == poly2.points.size();
+  return equal_size && std::equal(poly1.points.begin(), poly1.points.end(), poly2.points.begin());
 }
