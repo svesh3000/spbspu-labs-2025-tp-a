@@ -124,6 +124,6 @@ double sveshnikov::getPolygonArea(const Polygon &poly)
   auto l_end_it = left_shoelace_set.end();
   auto r_begin_it = right_shoelace_set.begin();
   std::transform(l_begin_it, l_end_it, r_begin_it, l_begin_it, std::minus());
-  double area = std::accumulate(l_begin_it, l_end_it, 0);
+  double area = std::accumulate(l_begin_it, l_end_it, 0.0);
   return std::abs(area) / 2;
 }
