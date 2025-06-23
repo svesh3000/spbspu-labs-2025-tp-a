@@ -47,18 +47,16 @@ namespace
   std::vector< double > getAreaSet(const polygon_set_t &shapes)
   {
     using namespace sveshnikov;
-    std::vector< double > areas;
-    areas.reserve(shapes.size());
-    std::transform(shapes.begin(), shapes.end(), std::back_inserter(areas), getPolygonArea);
+    std::vector< double > areas(shapes.size());
+    std::transform(shapes.begin(), shapes.end(), areas.begin(), getPolygonArea);
     return areas;
   }
 
   std::vector< size_t > getVertexesSet(const polygon_set_t &shapes)
   {
-    std::vector< size_t > areas;
-    areas.reserve(shapes.size());
-    std::transform(shapes.begin(), shapes.end(), std::back_inserter(areas), getNumVertexes);
-    return areas;
+    std::vector< size_t > num_vertexes_set(shapes.size());
+    std::transform(shapes.begin(), shapes.end(), num_vertexes_set.begin(), getNumVertexes);
+    return num_vertexes_set;
   }
 
   double area_impl(const polygon_set_t &shapes)
@@ -69,9 +67,8 @@ namespace
 
   double area_even(const polygon_set_t &shapes)
   {
-    polygon_set_t pts;
-    pts.reserve(shapes.size());
-    std::copy_if(shapes.begin(), shapes.end(), std::back_inserter(pts), isEven);
+    polygon_set_t pts(shapes.size());
+    std::copy_if(shapes.begin(), shapes.end(), pts.begin(), isEven);
     return area_impl(pts);
   }
 
@@ -92,9 +89,9 @@ namespace
   double area_num_vertexes(const polygon_set_t &shapes, size_t num)
   {
     using namespace std::placeholders;
-    polygon_set_t pts;
+    polygon_set_t pts(shapes.size());
     auto num_vert = std::bind(std::equal_to< size_t >(), std::bind(getNumVertexes, _1), num);
-    std::copy_if(shapes.begin(), shapes.end(), std::back_inserter(pts), num_vert);
+    std::copy_if(shapes.begin(), shapes.end(), pts.begin(), num_vert);
     return area_impl(pts);
   }
 
@@ -102,7 +99,7 @@ namespace
   {
     std::vector< double > areas = getAreaSet(shapes);
     auto it = std::max_element(areas.begin(), areas.end());
-    sveshnikov::StreamGuard streamguard(out);
+    sveshnikov::StreamGuard guard(out);
     out << std::fixed << std::setprecision(1) << *it << '\n';
   }
 
@@ -110,7 +107,7 @@ namespace
   {
     std::vector< size_t > areas = getVertexesSet(shapes);
     auto it = std::max_element(areas.begin(), areas.end());
-    sveshnikov::StreamGuard streamguard(out);
+    sveshnikov::StreamGuard guard(out);
     out << std::fixed << std::setprecision(1) << *it << '\n';
   }
 
@@ -118,7 +115,7 @@ namespace
   {
     std::vector< double > areas = getAreaSet(shapes);
     auto it = std::min_element(areas.begin(), areas.end());
-    sveshnikov::StreamGuard streamguard(out);
+    sveshnikov::StreamGuard guard(out);
     out << std::fixed << std::setprecision(1) << *it << '\n';
   }
 
@@ -126,7 +123,7 @@ namespace
   {
     std::vector< size_t > areas = getVertexesSet(shapes);
     auto it = std::min_element(areas.begin(), areas.end());
-    sveshnikov::StreamGuard streamguard(out);
+    sveshnikov::StreamGuard guard(out);
     out << std::fixed << std::setprecision(1) << *it << '\n';
   }
 
@@ -176,7 +173,7 @@ void sveshnikov::area(is_t &in, os_t &out, const polygon_set_t &shapes)
     area = params.at(parm)();
   }
 
-  StreamGuard streamguard(out);
+  StreamGuard guard(out);
   out << std::fixed << std::setprecision(1) << area << '\n';
 }
 
@@ -233,18 +230,40 @@ void sveshnikov::count(is_t &in, os_t &out, const polygon_set_t &shapes)
   {
     num_vertexes = params.at(parm)();
   }
-  sveshnikov::StreamGuard streamguard(out);
+  sveshnikov::StreamGuard guard(out);
   out << std::fixed << std::setprecision(1) << num_vertexes << '\n';
 }
 
 void sveshnikov::maxseq(is_t &in, os_t &out, const polygon_set_t &shapes)
-{}
+{
+  using namespace std::placeholders;
+  Polygon poly;
+  in >> poly;
+
+  std::vector< int > match_vect(shapes.size());
+  auto equal_curr = std::bind(std::equal_to< Polygon >(), _1, poly);
+  std::transform(shapes.begin(), shapes.end(), match_vect.begin(), equal_curr);
+  if (match_vect.empty())
+  {
+    sveshnikov::StreamGuard guard(out);
+    out << "0\n";
+    return;
+  }
+
+  std::vector< int > seqLengths(match_vect.size());
+  auto bin_op = std::bind(std::multiplies< int >(), _2, std::bind(std::plus< int >(), _1, 1));
+  std::partial_sum(match_vect.begin(), match_vect.end(), seqLengths.begin(), bin_op);
+  auto max_it = std::max_element(seqLengths.begin(), seqLengths.end());
+
+  sveshnikov::StreamGuard guard(out);
+  out << *max_it << '\n';
+}
 
 void sveshnikov::rmecho(is_t &in, os_t &out, polygon_set_t &shapes)
 {
   size_t old_size = shapes.size();
   auto last = std::unique(shapes.begin(), shapes.end());
   shapes.erase(last, shapes.end());
-  sveshnikov::StreamGuard streamguard(out);
+  sveshnikov::StreamGuard guard(out);
   out << old_size - shapes.size() << '\n';
 }
