@@ -72,8 +72,10 @@ std::istream &sveshnikov::operator>>(std::istream &in, Polygon &shape)
   Polygon poly;
 
   size_t num_points = 0;
-  in >> num_points;
-  std::copy_n(in_iter(in), num_points, std::back_inserter(poly.points));
+  if (in >> num_points)
+  {
+    std::copy_n(in_iter(in), num_points, std::back_inserter(poly.points));
+  }
   if (num_points < 3 || poly.points.size() != num_points)
   {
     in.setstate(std::ios::failbit);
@@ -92,11 +94,11 @@ void sveshnikov::loadPolygons(std::istream &in, std::vector< Polygon > &shapes)
 
   while (!in.eof())
   {
-    std::copy(in_iter(in), in_iter(), std::back_inserter(shapes));
     if (in.fail())
     {
       in.clear();
     }
+    std::copy(in_iter(in), in_iter(), std::back_inserter(shapes));
   }
 }
 
