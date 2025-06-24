@@ -7,7 +7,7 @@
 int main(int argc, char **argv)
 {
   using namespace sveshnikov;
-  if (argc != 1)
+  if (argc != 2)
   {
     std::cerr << "Error: file is not specified!\n";
     return 1;
