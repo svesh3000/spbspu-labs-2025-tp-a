@@ -77,7 +77,7 @@ std::istream &sveshnikov::operator>>(std::istream &in, Polygon &shape)
   {
     std::copy_n(in_iter(in), num_points, std::back_inserter(poly.points));
   }
-  if (num_points < 3 || poly.points.size() != num_points)
+  if (num_points < 3 || poly.points.size() != num_points || in.peek() != '\n')
   {
     in.setstate(std::ios::failbit);
   }
