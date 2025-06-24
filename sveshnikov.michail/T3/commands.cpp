@@ -160,7 +160,7 @@ void sveshnikov::area(is_t &in, os_t &out, const polygon_set_t &shapes)
   {
     size_t len_str = 0;
     int num_vertexes = std::stoi(parm, &len_str);
-    if (len_str != parm.size())
+    if (len_str != parm.size() || num_vertexes < 3)
     {
       throw std::invalid_argument("Error: the parameter is not a number!");
     }
@@ -218,7 +218,7 @@ void sveshnikov::count(is_t &in, os_t &out, const polygon_set_t &shapes)
   {
     size_t len_str = 0;
     int n = std::stoi(parm, &len_str);
-    if (len_str != parm.size())
+    if (len_str != parm.size() || n < 3)
     {
       throw std::invalid_argument("Error: the parameter is not a number!");
     }
@@ -237,6 +237,10 @@ void sveshnikov::maxseq(is_t &in, os_t &out, const polygon_set_t &shapes)
   using namespace std::placeholders;
   Polygon poly;
   in >> poly;
+  if (!in)
+  {
+    throw std::logic_error("Error: incorrect polygon!");
+  }
 
   std::vector< int > match_vect(shapes.size());
   auto equal_curr = std::bind(std::equal_to< Polygon >(), _1, poly);
@@ -262,6 +266,10 @@ void sveshnikov::rmecho(is_t &in, os_t &out, polygon_set_t &shapes)
   using namespace std::placeholders;
   Polygon poly;
   in >> poly;
+  if (!in)
+  {
+    throw std::logic_error("Error: incorrect polygon!");
+  }
   size_t old_size = shapes.size();
 
   auto equal1 = std::bind(std::equal_to< Polygon >(), _1, poly);

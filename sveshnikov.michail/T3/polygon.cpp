@@ -1,4 +1,5 @@
 #include "polygon.hpp"
+#include <limits>
 #include <numeric>
 #include <iterator>
 #include <algorithm>
@@ -96,7 +97,8 @@ void sveshnikov::loadPolygons(std::istream &in, std::vector< Polygon > &shapes)
   {
     if (in.fail())
     {
-      in.clear();
+      in.clear(in.rdstate() ^ std::ios::failbit);
+      in.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
     }
     std::copy(in_iter(in), in_iter(), std::back_inserter(shapes));
   }

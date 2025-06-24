@@ -39,7 +39,7 @@ int main(int argc, char **argv)
     {
       cmds.at(command)(std::cin, std::cout, shapes);
     }
-    catch (const std::out_of_range &e)
+    catch (...)
     {
       if (std::cin.fail())
       {
