@@ -241,6 +241,11 @@ void sveshnikov::maxseq(is_t &in, os_t &out, const polygon_set_t &shapes)
   {
     throw std::logic_error("Error: incorrect polygon!");
   }
+  in >> std::ws;
+  if (in.peek() != '\n')
+  {
+    throw std::invalid_argument("Error: extra characters after command!");
+  }
 
   std::vector< int > match_vect(shapes.size());
   auto equal_curr = std::bind(std::equal_to< Polygon >(), _1, poly);
@@ -268,7 +273,12 @@ void sveshnikov::rmecho(is_t &in, os_t &out, polygon_set_t &shapes)
   in >> poly;
   if (!in)
   {
-    throw std::logic_error("Error: incorrect polygon!");
+    throw std::invalid_argument("Error: incorrect polygon!");
+  }
+  in >> std::ws;
+  if (in.peek() != '\n')
+  {
+    throw std::invalid_argument("Error: extra characters after command!");
   }
   size_t old_size = shapes.size();
 
