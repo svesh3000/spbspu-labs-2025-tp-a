@@ -241,11 +241,6 @@ void sveshnikov::maxseq(is_t &in, os_t &out, const polygon_set_t &shapes)
   {
     throw std::logic_error("Error: incorrect polygon!");
   }
-  in >> std::ws;
-  if (in.peek() != '\n')
-  {
-    throw std::logic_error("Error: extra data after polygon!");
-  }
 
   std::vector< int > match_vect(shapes.size());
   auto equal_curr = std::bind(std::equal_to< Polygon >(), _1, poly);
